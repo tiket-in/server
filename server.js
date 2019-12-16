@@ -3,16 +3,23 @@ const express = require('express')
 const db = require('./config/db')
 const morgan = require('morgan')
 const cors = require('cors')
+const fileUploads = require('express-fileupload')
 
 const PORT = process.env.PORT || 9600
 const app = express()
-const HttpError = require('./helpers/HttpError')
 const route = require('./routes')
 
-app.use(morgan())
-app.use('/api/v1', route)
+app.use(morgan('dev'))
 app.use(cors())
+app.use(express.static('./public'))
+app.use(
+	fileUploads({
+		useTempFiles: true,
+		tempFileDir: './public/assets',
+	})
+)
 
+app.use('/api/v1', route)
 app.get('/', (req, res) => {
 	res.status(200).send({
 		code: 200,
@@ -36,16 +43,12 @@ const start = () => {
 	try {
 		db.connect(err => {
 			if (err) {
-				throw new HttpError(
-					500,
-					'Internal Server Error',
-					'Cannot Connect To Database'
-				)
+				throw err
 			}
 			console.log('Database Connected')
 		})
 		app.listen(PORT, () => {
-			console.log(`Server listening on port: ${PORT}`)
+			console.log(`Server listening on http://localhost/${PORT}`)
 		})
 	} catch (error) {
 		console.error(`An error occured on the server:`, error)
@@ -53,3 +56,5 @@ const start = () => {
 }
 
 start()
+
+module.exports = app

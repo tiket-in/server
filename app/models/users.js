@@ -1,31 +1,27 @@
 const db = require('../../config/db')
 
 module.exports = {
-	createUser: body => {
+	checkEmail: email => {
 		return new Promise((resolve, reject) => {
-			db.query('INSERT INTO users SET ?', [body], (err, result) => {
+			db.query(`SELECT * FROM users WHERE email = ? `, email, (err, result) => {
 				if (!err) {
 					resolve(result)
 				} else {
-					reject(err)
+					reject(new Error(err))
 				}
 			})
 		})
 	},
 
-	loginUser: email => {
+	register: data => {
 		return new Promise((resolve, reject) => {
-			db.query(
-				`SELECT * FROM users WHERE email = ? `,
-				[email],
-				(err, result) => {
-					if (!err) {
-						resolve(result)
-					} else {
-						reject(err)
-					}
+			db.query(`INSERT INTO users SET ? `, [data], (err, result) => {
+				if (!err) {
+					resolve(result)
+				} else {
+					reject(new Error(err))
 				}
-			)
+			})
 		})
 	},
 }
