@@ -24,4 +24,16 @@ module.exports = {
 			})
 		})
 	},
+
+	login: email => {
+		return new Promise((resolve, reject) => {
+			db.query(`SELECT * FROM users WHERE email = ?`, email, (err, result) => {
+				if (!err) {
+					resolve(result)
+				} else {
+					reject(new Error(err))
+				}
+			})
+		})
+	},
 }

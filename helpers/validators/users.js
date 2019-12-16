@@ -1,8 +1,7 @@
 const Validator = require('validator')
 const isEmpty = require('./is-empty')
 
-const validateLoginInput = data => {
-	const passReg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#@$!%*?&])[A-Za-z\d@#$!%*?&]{7,}$/
+const validateRegisterInput = data => {
 	let errors = {}
 
 	data.email = !isEmpty(data.email) ? data.email : ''
@@ -52,4 +51,28 @@ const validateLoginInput = data => {
 	return { errors, isValid: isEmpty(errors) }
 }
 
-module.exports = { validateLoginInput }
+const validateLoginInput = data => {
+	let errors = {}
+
+	data.email = !isEmpty(data.email) ? data.email : ''
+	data.password = !isEmpty(data.password) ? data.password : ''
+
+	//email
+	if (!Validator.isEmail(data.email)) {
+		errors.email = 'Email is invalid'
+	}
+	if (Validator.isEmpty(data.email)) {
+		errors.email = 'Email cannot empty'
+	}
+	//password
+	if (Validator.isEmpty(data.password)) {
+		errors.password = 'Password cannot empty'
+	}
+	if (!Validator.isLength(data.password, { min: 7, max: undefined })) {
+		errors.password = 'Password Should Min. 7 characters'
+	}
+
+	return { errors, isValid: isEmpty(errors) }
+}
+
+module.exports = { validateRegisterInput, validateLoginInput }

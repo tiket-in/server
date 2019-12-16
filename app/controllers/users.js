@@ -1,9 +1,13 @@
 const userModel = require('../models/users')
-const { validateLoginInput } = require('../../helpers/validators/users')
+const {
+	validateRegisterInput,
+	validateLoginInput,
+} = require('../../helpers/validators/users')
 const HttpError = require('../../helpers/HttpError')
-const { genSalt, hash } = require('bcryptjs')
+const { genSalt, hash, compare } = require('bcryptjs')
 const uuid = require('uuid/v4')
 const moment = require('moment')
+const jwt = require('jsonwebtoken')
 
 module.exports = {
 	register: async (req, res) => {
@@ -11,7 +15,7 @@ module.exports = {
 			const { email, first_name, last_name, password, num_phone } = req.body
 			const data = { email, first_name, last_name, password, num_phone }
 
-			const { errors, isValid } = validateLoginInput(data)
+			const { errors, isValid } = validateRegisterInput(data)
 			if (!isValid) {
 				throw new HttpError(400, 'Bad Request', errors)
 			}
@@ -41,6 +45,41 @@ module.exports = {
 				message: 'Succes Register',
 				data,
 			})
+		} catch (error) {
+			HttpError.handle(res, error)
+		}
+	},
+
+	login: async (req, res) => {
+		try {
+			const { email, password } = req.body
+			const data = { email, password }
+
+			const { errors, isValid } = validateLoginInput(data)
+			if (!isValid) {
+				throw new HttpError(400, 'Bad Request', errors)
+			}
+
+			const response = await userModel.login(email)
+
+			if (response.length === 0) {
+				throw new HttpError(400, 'Bad Request', 'User has not registered yet')
+			}
+
+			const [user] = response
+			const comparePassword = await compare(password, user.password)
+
+			if (!comparePassword) {
+				throw new HttpError(400, 'Bad Request', { password: 'Wrong Password' })
+			}
+
+			const parsedUser = JSON.parse(JSON.stringify(user))
+
+			delete parsedUser.password
+
+			const token = jwt.sign(parsedUser, process.env.JWT_SECRET)
+
+			res.json(token)
 		} catch (error) {
 			HttpError.handle(res, error)
 		}
