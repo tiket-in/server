@@ -2,6 +2,51 @@ const flightModel = require('../models/flights')
 const HttpError = require('../../helpers/HttpError')
 
 module.exports = {
+	addFlight: async (req, res) => {
+		try {
+			const {
+				id_flight_airline,
+				flight_number,
+				from_id_city,
+				from_airport,
+				from_airport_code,
+				from_at,
+				to_id_city,
+				to_airport,
+				to_airport_code,
+				to_at,
+			} = req.body
+
+			const price = parseInt(req.body.price)
+			const data = {
+				id_flight_airline,
+				flight_number,
+				from_id_city,
+				from_airport,
+				from_airport_code,
+				from_at,
+				to_id_city,
+				to_airport,
+				to_airport_code,
+				to_at,
+				price,
+			}
+
+			const result = await flightModel.addFlight(data)
+
+			res.status(200).json({
+				code: 200,
+				status: 'OK',
+				message: 'Succes Add Schedule',
+				data: {
+					id: result.insertId,
+					...data,
+				},
+			})
+		} catch (error) {
+			HttpError.handle(res, error)
+		}
+	},
 	getFlight: async (req, res) => {
 		try {
 			const { from_city, to_city, from_date } = req.query

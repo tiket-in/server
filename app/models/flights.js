@@ -1,6 +1,18 @@
 const db = require('../../config/db')
 
 module.exports = {
+	addFlight: data => {
+		return new Promise((resolve, reject) => {
+			db.query(`INSERT INTO flight_schedule set ?`, data, (err, result) => {
+				if (!err) {
+					resolve(result)
+				} else {
+					reject(err)
+				}
+			})
+		})
+	},
+
 	getFlight: (fromCity, toCity, fromDate) => {
 		return new Promise((resolve, reject) => {
 			const query = `SELECT fs.*, cf.name AS from_city, ct.name AS to_city
