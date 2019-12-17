@@ -22,4 +22,41 @@ module.exports = {
 			HttpError.handle(res, error)
 		}
 	},
+
+	flightBooking: async (req, res) => {
+		try {
+			const {
+				id_users,
+				id_flight_schedule,
+				contact_name,
+				contact_num_phone,
+			} = req.body
+
+			const price = parseInt(req.body.price)
+			const booked_status = 'Choose Payment Method'
+
+			let data = {
+				id_users,
+				id_flight_schedule,
+				contact_name,
+				contact_num_phone,
+				price,
+				booked_status,
+			}
+
+			const result = await flightModel.flightBooking(data)
+
+			res.status(200).json({
+				code: 200,
+				status: 'OK',
+				message: 'Success Booking',
+				data: {
+					id: result.insertId,
+					...data,
+				},
+			})
+		} catch (error) {
+			HttpError.handle(res, error)
+		}
+	},
 }

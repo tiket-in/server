@@ -17,4 +17,16 @@ module.exports = {
 			})
 		})
 	},
+
+	flightBooking: data => {
+		return new Promise((resolve, reject) => {
+			db.query('INSERT INTO flight_booked SET ?', data, (err, result) => {
+				if (!err) {
+					resolve(result)
+				} else {
+					reject(err)
+				}
+			})
+		})
+	},
 }

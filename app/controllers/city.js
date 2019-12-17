@@ -29,6 +29,12 @@ module.exports = {
 			const { name } = req.body
 			const date = moment().format('YYYY-MM-DD HH:mm:ss')
 
+			const checkCity = await cityModel.getCityByName(name)
+
+			if (checkCity.length > 0) {
+				throw new HttpError(400, 'Bad Request', `${name} City Already Exist`)
+			}
+
 			await cityModel.addCity({
 				name,
 				created_at: date,
